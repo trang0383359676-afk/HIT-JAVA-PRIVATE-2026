@@ -1,4 +1,7 @@
+
 import model.Product;
+import model.Book;
+import model.Cake;
 import model.Customer;
 import model.CartItem;
 
@@ -13,11 +16,18 @@ public class HitShop {
 
     private static final List<CartItem> cart = new ArrayList<>();
 
+    private static final List<Product> products = new ArrayList<>();
+
     private static final Product p1 =
             new Product("P01", "Áo thun", 150000, 20);
 
     private static final Product p2 =
             new Product("P02", "Bình nước", 50000, 10);
+
+    static {
+        products.add(p1);
+        products.add(p2);
+    }
 
     static void addItem(Product product, int quantity) {
         CartItem item = new CartItem(product, quantity);
@@ -67,6 +77,7 @@ public class HitShop {
         System.out.println("2. Xóa mặt hàng");
         System.out.println("3. Xem giỏ hàng");
         System.out.println("4. Xem tổng tiền");
+        System.out.println("5. Kiểm tra sản phẩm có đắt không");
         System.out.println("0. Thoát");
         System.out.print("Chọn: ");
     }
@@ -81,38 +92,69 @@ public class HitShop {
             choice = sc.nextInt();
 
             switch (choice) {
+
                 case 1:
-                    System.out.println("Danh sách sản phẩm:");
-                    System.out.println(p1.getId() + " - " + p1.getName());
-                    System.out.println(p2.getId() + " - " + p2.getName());
+                    System.out.println("=== Chọn loại sản phẩm ===");
+                    System.out.println("1. Product - Sản phẩm thông thường");
+                    System.out.println("2. Book - Sách");
+                    System.out.println("3. Cake - Bánh");
+                    System.out.print("Chọn loại: ");
 
-                    System.out.print("Nhập mã sản phẩm: ");
-                    String id = sc.next();
+                    int type = sc.nextInt();
 
-                    Product product = null;
-
-                    if (id.equalsIgnoreCase("P01")) {
-                        product = p1;
-                    } else if (id.equalsIgnoreCase("P02")) {
-                        product = p2;
-                    }
-
-                    if (product == null) {
-                        System.out.println("Không tìm thấy sản phẩm.");
+                    if (type < 1 || type > 3) {
+                        System.out.println("Loại sản phẩm không hợp lệ.");
                         break;
                     }
 
-                    System.out.print("Nhập số lượng: ");
+                    sc.nextLine();
+
+                    System.out.print("Nhập ID: ");
+                    String id = sc.nextLine();
+
+                    System.out.print("Nhập tên sản phẩm: ");
+                    String name = sc.nextLine();
+
+                    System.out.print("Nhập giá: ");
+                    double price = sc.nextDouble();
+
+                    System.out.print("Nhập tồn kho: ");
+                    int stock = sc.nextInt();
+                    sc.nextLine();
+
+                    Product product = null;
+
+                    if (type == 1) {
+                        product = new Product(id, name, price, stock);
+                    } else if (type == 2) {
+                        System.out.print("Nhập tên tác giả: ");
+                        String author = sc.nextLine();
+
+                        product = new Book(
+                                id, name, price, stock, author
+                        );
+                    } else if (type == 3) {
+                        System.out.print("Nhập thương hiệu bánh: ");
+                        String brand = sc.nextLine();
+
+                        product = new Cake(
+                                id, name, price, stock, brand
+                        );
+                    }
+
+                    products.add(product);
+
+                    System.out.print("Nhập số lượng mua: ");
                     int quantity = sc.nextInt();
 
-                    if (quantity <= 0) {
-                        System.out.println(
-                                "Số lượng phải lớn hơn 0."
-                        );
+                    if (quantity <= 0 || quantity > stock) {
+                        System.out.println("Số lượng không hợp lệ.");
+                        products.remove(product);
                         break;
                     }
 
                     addItem(product, quantity);
+
                     System.out.println("Thêm mặt hàng thành công.");
                     break;
 
@@ -145,6 +187,30 @@ public class HitShop {
                     System.out.println(
                             "Tổng tiền: " + calculateTotal()
                     );
+                    break;
+
+                case 5:
+                    System.out.print("Nhập ID sản phẩm: ");
+                    String searchId = sc.next();
+
+                    Product foundProduct = null;
+
+                    for (Product p : products) {
+                        if (p.getId().equalsIgnoreCase(searchId)) {
+                            foundProduct = p;
+                            break;
+                        }
+                    }
+
+                    if (foundProduct == null) {
+                        System.out.println("Không tìm thấy sản phẩm.");
+                    } else {
+                        if (foundProduct.isExpensive()) {
+                            System.out.println("Sản phẩm đắt.");
+                        } else {
+                            System.out.println("Sản phẩm không đắt.");
+                        }
+                    }
                     break;
 
                 case 0:

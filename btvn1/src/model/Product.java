@@ -45,4 +45,8 @@ public class Product {
     public String toString() {
         return id + " | " + name + " | " + price + " | tồn: " + stock;
     }
+
+    public boolean isExpensive(){
+        return price > 10000;
+    }
 }
