@@ -1,4 +1,3 @@
-
 import model.Product;
 import model.Book;
 import model.Cake;
@@ -126,6 +125,7 @@ public class HitShop {
 
                     if (type == 1) {
                         product = new Product(id, name, price, stock);
+
                     } else if (type == 2) {
                         System.out.print("Nhập tên tác giả: ");
                         String author = sc.nextLine();
@@ -133,6 +133,7 @@ public class HitShop {
                         product = new Book(
                                 id, name, price, stock, author
                         );
+
                     } else if (type == 3) {
                         System.out.print("Nhập thương hiệu bánh: ");
                         String brand = sc.nextLine();

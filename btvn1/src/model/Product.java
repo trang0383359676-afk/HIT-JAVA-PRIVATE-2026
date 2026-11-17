@@ -41,12 +41,12 @@ public class Product {
         this.stock = stock;
     }
 
+    public boolean isExpensive() {
+        return price > 10000;
+    }
+
     @Override
     public String toString() {
         return id + " | " + name + " | " + price + " | tồn: " + stock;
-    }
-
-    public boolean isExpensive(){
-        return price > 10000;
     }
 }
