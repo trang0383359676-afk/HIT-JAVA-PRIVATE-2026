@@ -1,225 +1,228 @@
+
 import model.Product;
+import model.GeneralProduct;
 import model.Book;
 import model.Cake;
 import model.Customer;
-import model.CartItem;
+import model.Order;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class HitShop {
 
-    private static final Customer currentCustomer =
-            new Customer("C01", "Linh Nguyễn", "0900000001");
-
-    private static final List<CartItem> cart = new ArrayList<>();
-
-    private static final List<Product> products = new ArrayList<>();
-
-    private static final Product p1 =
-            new Product("P01", "Áo thun", 150000, 20);
-
-    private static final Product p2 =
-            new Product("P02", "Bình nước", 50000, 10);
-
-    static {
-        products.add(p1);
-        products.add(p2);
-    }
-
-    static void addItem(Product product, int quantity) {
-        CartItem item = new CartItem(product, quantity);
-        cart.add(item);
-    }
-
-    static void removeItem(int index) {
-        cart.remove(index);
-    }
-
-    static void printItems() {
-        System.out.println("Khách hàng: " + currentCustomer);
-
-        if (cart.isEmpty()) {
-            System.out.println("Giỏ hàng đang trống.");
-            return;
-        }
-
-        for (int i = 0; i < cart.size(); i++) {
-            CartItem item = cart.get(i);
-            Product product = item.getProduct();
-
-            System.out.println(
-                    (i + 1) + ". "
-                            + product.getId() + " | "
-                            + product.getName() + " | "
-                            + product.getPrice() + " | SL: "
-                            + item.getQuantity() + " | Thành tiền: "
-                            + item.getTotal()
-            );
+    // Nhap so nguyen an toan
+    public static int nhapInt(Scanner sc, String thongBao) {
+        while (true) {
+            try {
+                System.out.print(thongBao);
+                return Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Vui long nhap so nguyen!");
+            }
         }
     }
 
-    static double calculateTotal() {
-        double total = 0;
-
-        for (CartItem item : cart) {
-            total += item.getTotal();
+    // Nhap so thuc an toan
+    public static double nhapDouble(Scanner sc, String thongBao) {
+        while (true) {
+            try {
+                System.out.print(thongBao);
+                return Double.parseDouble(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Vui long nhap so!");
+            }
         }
-
-        return total;
-    }
-
-    static void printMenu() {
-        System.out.println("\n===== HIT SHOP =====");
-        System.out.println("1. Thêm mặt hàng");
-        System.out.println("2. Xóa mặt hàng");
-        System.out.println("3. Xem giỏ hàng");
-        System.out.println("4. Xem tổng tiền");
-        System.out.println("5. Kiểm tra sản phẩm có đắt không");
-        System.out.println("0. Thoát");
-        System.out.print("Chọn: ");
     }
 
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
+
+        ProductService productService = new ProductServiceImpl();
+        OrderService orderService = new OrderServiceImpl(sc);
 
         int choice;
 
         do {
-            printMenu();
-            choice = sc.nextInt();
+            System.out.println("\n===== HITSHOP - QUAN LY DON HANG =====");
+            System.out.println("1. Them don hang");
+            System.out.println("2. Xem danh sach don hang");
+            System.out.println("3. Sua don hang theo ID");
+            System.out.println("4. Xoa don hang theo ID");
+            System.out.println("5. Kiem tra san pham co dat khong");
+            System.out.println("6. Thanh toan don hang");
+            System.out.println("0. Thoat");
+
+            choice = nhapInt(sc, "Nhap lua chon: ");
 
             switch (choice) {
 
-                case 1:
-                    System.out.println("=== Chọn loại sản phẩm ===");
-                    System.out.println("1. Product - Sản phẩm thông thường");
-                    System.out.println("2. Book - Sách");
-                    System.out.println("3. Cake - Bánh");
-                    System.out.print("Chọn loại: ");
+                case 1: {
+                    System.out.println("\n===== NHAP THONG TIN KHACH HANG =====");
 
-                    int type = sc.nextInt();
+                    System.out.print("Nhap ma khach hang: ");
+                    String customerId = sc.nextLine();
+
+                    System.out.print("Nhap ten khach hang: ");
+                    String customerName = sc.nextLine();
+
+                    System.out.print("Nhap so dien thoai: ");
+                    String phone = sc.nextLine();
+
+                    Customer customer = new Customer(
+                            customerId, customerName, phone
+                    );
+
+                    System.out.println("\n===== CHON LOAI SAN PHAM =====");
+                    System.out.println("1. GeneralProduct");
+                    System.out.println("2. Book");
+                    System.out.println("3. Cake");
+
+                    int type = nhapInt(sc, "Chon loai: ");
 
                     if (type < 1 || type > 3) {
-                        System.out.println("Loại sản phẩm không hợp lệ.");
+                        System.out.println("Loai san pham khong hop le!");
                         break;
                     }
 
-                    sc.nextLine();
+                    System.out.print("Nhap ID san pham: ");
+                    String productId = sc.nextLine();
 
-                    System.out.print("Nhập ID: ");
-                    String id = sc.nextLine();
+                    // Kiem tra ID san pham da ton tai chua
+                    if (productService.findById(productId) != null) {
+                        System.out.println("ID san pham da ton tai!");
+                        break;
+                    }
 
-                    System.out.print("Nhập tên sản phẩm: ");
-                    String name = sc.nextLine();
+                    System.out.print("Nhap ten san pham: ");
+                    String productName = sc.nextLine();
 
-                    System.out.print("Nhập giá: ");
-                    double price = sc.nextDouble();
+                    double price = nhapDouble(sc, "Nhap gia: ");
+                    int stock = nhapInt(sc, "Nhap ton kho: ");
 
-                    System.out.print("Nhập tồn kho: ");
-                    int stock = sc.nextInt();
-                    sc.nextLine();
+                    if (price < 0 || stock < 0) {
+                        System.out.println("Gia va ton kho khong hop le!");
+                        break;
+                    }
 
                     Product product = null;
 
                     if (type == 1) {
-                        product = new Product(id, name, price, stock);
-
+                        product = new GeneralProduct(
+                                productId, productName, price, stock
+                        );
                     } else if (type == 2) {
-                        System.out.print("Nhập tên tác giả: ");
+                        System.out.print("Nhap ten tac gia: ");
                         String author = sc.nextLine();
 
                         product = new Book(
-                                id, name, price, stock, author
+                                productId, productName,
+                                price, stock, author
                         );
-
-                    } else if (type == 3) {
-                        System.out.print("Nhập thương hiệu bánh: ");
+                    } else {
+                        System.out.print("Nhap thuong hieu banh: ");
                         String brand = sc.nextLine();
 
                         product = new Cake(
-                                id, name, price, stock, brand
+                                productId, productName,
+                                price, stock, brand
                         );
                     }
 
-                    products.add(product);
-
-                    System.out.print("Nhập số lượng mua: ");
-                    int quantity = sc.nextInt();
+                    int quantity = nhapInt(sc, "Nhap so luong mua: ");
 
                     if (quantity <= 0 || quantity > stock) {
-                        System.out.println("Số lượng không hợp lệ.");
-                        products.remove(product);
+                        System.out.println("So luong khong hop le!");
                         break;
                     }
 
-                    addItem(product, quantity);
+                    System.out.print("Nhap ma don hang: ");
+                    String orderId = sc.nextLine();
 
-                    System.out.println("Thêm mặt hàng thành công.");
-                    break;
+                    productService.addProduct(product);
 
-                case 2:
-                    if (cart.isEmpty()) {
-                        System.out.println("Giỏ hàng đang trống.");
-                        break;
-                    }
-
-                    printItems();
-
-                    System.out.print("Nhập số thứ tự cần xóa: ");
-                    int displayNumber = sc.nextInt();
-
-                    int index = displayNumber - 1;
-
-                    if (index < 0 || index >= cart.size()) {
-                        System.out.println("Không tìm thấy mặt hàng.");
-                    } else {
-                        removeItem(index);
-                        System.out.println("Xóa mặt hàng thành công.");
-                    }
-                    break;
-
-                case 3:
-                    printItems();
-                    break;
-
-                case 4:
-                    System.out.println(
-                            "Tổng tiền: " + calculateTotal()
+                    Order order = new Order(
+                            orderId, customer, product, quantity
                     );
+
+                    orderService.addOrder(order);
+
+                    System.out.println("Them don hang thanh cong!");
                     break;
+                }
 
-                case 5:
-                    System.out.print("Nhập ID sản phẩm: ");
-                    String searchId = sc.next();
+                case 2: {
+                    System.out.println("\n===== DANH SACH DON HANG =====");
+                    orderService.printOrders();
+                    break;
+                }
 
-                    Product foundProduct = null;
+                case 3: {
+                    System.out.print("Nhap ID don hang can sua: ");
+                    String id = sc.nextLine();
 
-                    for (Product p : products) {
-                        if (p.getId().equalsIgnoreCase(searchId)) {
-                            foundProduct = p;
-                            break;
-                        }
-                    }
+                    orderService.updateOrder(id);
+                    break;
+                }
 
-                    if (foundProduct == null) {
-                        System.out.println("Không tìm thấy sản phẩm.");
+                case 4: {
+                    System.out.print("Nhap ID don hang can xoa: ");
+                    String id = sc.nextLine();
+
+                    orderService.deleteOrder(id);
+                    break;
+                }
+
+                case 5: {
+                    System.out.print("Nhap ID san pham: ");
+                    String id = sc.nextLine();
+
+                    Product product = productService.findById(id);
+
+                    if (product == null) {
+                        System.out.println("Khong tim thay san pham!");
+                    } else if (product.isExpensive()) {
+                        System.out.println("San pham dat!");
                     } else {
-                        if (foundProduct.isExpensive()) {
-                            System.out.println("Sản phẩm đắt.");
-                        } else {
-                            System.out.println("Sản phẩm không đắt.");
-                        }
+                        System.out.println("San pham khong dat!");
                     }
-                    break;
 
-                case 0:
-                    System.out.println("Đã thoát chương trình.");
                     break;
+                }
 
-                default:
-                    System.out.println("Lựa chọn không hợp lệ.");
+                case 6: {
+                    System.out.print("Nhap ID don hang: ");
+                    String orderId = sc.nextLine();
+
+                    System.out.println("\n===== PHUONG THUC THANH TOAN =====");
+                    System.out.println("1. MoMo");
+                    System.out.println("2. HITBank");
+
+                    int paymentChoice = nhapInt(sc, "Chon phuong thuc: ");
+
+                    PaymentService paymentService;
+
+                    if (paymentChoice == 1) {
+                        paymentService = new MoMoPaymentService();
+                    } else if (paymentChoice == 2) {
+                        paymentService = new BankPaymentService();
+                    } else {
+                        System.out.println("Phuong thuc khong hop le!");
+                        break;
+                    }
+
+                    paymentService.pay(orderId);
+                    break;
+                }
+
+                case 0: {
+                    System.out.println("Da thoat chuong trinh!");
+                    break;
+                }
+
+                default: {
+                    System.out.println("Lua chon khong hop le!");
+                }
             }
 
         } while (choice != 0);
